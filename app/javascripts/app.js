@@ -7,9 +7,11 @@ import { default as contract } from 'truffle-contract'
 
 // Import our contract artifacts and turn them into usable abstractions.
 import metacoin_artifacts from '../../build/contracts/MetaCoin.json'
+import greeter_artifacts from '../../build/contracts/Greeter.json'
 
 // MetaCoin is our usable abstraction, which we'll use through the code below.
 var MetaCoin = contract(metacoin_artifacts);
+var Greeter = contract(greeter_artifacts);
 
 // The following code is simple to show off interacting with your contracts.
 // As your needs grow you will likely need to change its form and structure.
@@ -24,6 +26,7 @@ window.App = {
 
     // Bootstrap the MetaCoin abstraction for Use.
     MetaCoin.setProvider(web3.currentProvider);
+    Greeter.setProvider(web3.currentProvider);
 
     // Get the initial account balance so it can be displayed.
     web3.eth.getAccounts(function(err, accs) {
@@ -141,6 +144,24 @@ window.App = {
     }).catch(function(e) {
       console.log(e);
       self.setStatus("Error sending coin; see log.");
+    });
+  },
+
+  greetMe: function() {
+    var self = this;
+
+    this.setStatus("Talking to the greeter");
+
+    var greta;
+    Greeter.deployed().then(function(instance) {
+      greta = instance;
+      return greta.greet.call()
+    }).then(function(greeting) {
+      self.setStatus(greeting);
+      document.getElementById("greetingHeader").innerHTML = greeting;
+    }).catch(function(e) {
+      console.log(e);
+      self.setStatus(e);
     });
   }
 };
