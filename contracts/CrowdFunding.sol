@@ -45,7 +45,7 @@ contract CrowdFunding {
     function checkGoalReached() onlyOwner returns (bool ended) {
         if (ended) throw;
 
-        if (block.timestamp < deadline) throw;
+//        if (block.timestamp < deadline) throw;
 
         if (amountRaised >= goal) {
             campaignStatus = "Campaign Succeeded!";
