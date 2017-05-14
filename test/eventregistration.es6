@@ -15,6 +15,7 @@ contract('eventregistration', function(accounts) {
     const Email = "bob@fish.com";
     const NumTickets = 3;
     const TicketCost = 101;
+    const TicketQuota = 10;
 
 
     it("should be able to buy a ticket", () => {
@@ -33,10 +34,28 @@ contract('eventregistration', function(accounts) {
         return EventRegistration.deployed().then(instance => {
             return instance.buyTicket(Email, NumTickets, { from: accounts[0], value: TicketCost -1 }).then(txResult => {
                     // should not reach here
-                    // assert.equal(txResult.logs.length, 2); // make sure it fired
                     assert.equal(true, false);
                 }
             ).catch(e => ThrowHandler(e));
+        });
+    });
+
+    it("should not buy more tickets than the quota", () => {
+        var eventRegistration;
+        return EventRegistration.deployed().then(instance => {
+            eventRegistration = instance;
+            return eventRegistration.buyTicket(Email, TicketQuota, { from: accounts[0], value: TicketCost * TicketQuota}).then(txResult => {
+                    assert.equal(txResult.logs.length, 1); // make sure it fired
+                    assert.equal(txResult.logs[0].event, "Deposit");
+                    assert.equal(txResult.logs[0].args['_from'], accounts[0]);
+                    assert.equal(txResult.logs[0].args['_amount'], TicketCost * TicketQuota);
+                }
+            ).then(() => {
+                return eventRegistration.buyTicket(Email, 1, { from: accounts[0], value: TicketCost}).then(txResult => {
+                    // should not reach here
+                    assert.equal(true, false);
+                }).catch(e => ThrowHandler(e));
+            });
         });
     });
 
