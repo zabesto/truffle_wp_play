@@ -15,16 +15,17 @@ contract('eventregistration', function(accounts) {
     const Email = "bob@fish.com";
     const NumTickets = 3;
     const TicketCost = 101;
-    const TicketQuota = 10;
+    const TicketQuota = 100;
+    const TicketBatch = 10;
 
 
     it("should be able to buy a ticket", () => {
         return EventRegistration.deployed().then(instance => {
-            return instance.buyTicket(Email, NumTickets, { from: accounts[0], value: TicketCost * NumTickets }).then(txResult => {
+            return instance.buyTicket(Email, NumTickets, { from: accounts[0], value: TicketCost * TicketBatch }).then(txResult => {
                     assert.equal(txResult.logs.length, 1); // make sure it fired
                     assert.equal(txResult.logs[0].event, "Deposit");
                     assert.equal(txResult.logs[0].args['_from'], accounts[0]);
-                    assert.equal(txResult.logs[0].args['_amount'], TicketCost * NumTickets);
+                    assert.equal(txResult.logs[0].args['_amount'], TicketCost * TicketBatch);
                 }
             );
         });
@@ -40,23 +41,44 @@ contract('eventregistration', function(accounts) {
         });
     });
 
+    it("should be able to get the amount paid for a buyer", () => {
+        var eventRegistration;
+        return EventRegistration.deployed().then(instance => {
+            eventRegistration = instance;
+            return eventRegistration.buyTicket(Email, TicketBatch, { from: accounts[1], value: TicketCost * TicketBatch}).then(txResult => {
+                    assert.equal(txResult.logs.length, 1); // make sure it fired
+                    assert.equal(txResult.logs[0].event, "Deposit");
+                    assert.equal(txResult.logs[0].args['_from'], accounts[1]);
+                    assert.equal(txResult.logs[0].args['_amount'], TicketCost * TicketBatch);
+                }
+            ).then(() => {
+                return eventRegistration.getRegistrantAmountPaid.call(accounts[1]).then(amount => {
+                    assert.equal(amount.toNumber(), TicketCost * TicketBatch);
+                });
+            });
+        });
+    });
+
+
+    /* NOTE: Has to be last since we can't reset the transactions between tests */
     it("should not buy more tickets than the quota", () => {
         var eventRegistration;
         return EventRegistration.deployed().then(instance => {
             eventRegistration = instance;
-            return eventRegistration.buyTicket(Email, TicketQuota, { from: accounts[0], value: TicketCost * TicketQuota}).then(txResult => {
+            return eventRegistration.buyTicket(Email, TicketQuota * 5, { from: accounts[0], value: TicketCost * TicketQuota * 5}).then(txResult => {
                     assert.equal(txResult.logs.length, 1); // make sure it fired
                     assert.equal(txResult.logs[0].event, "Deposit");
                     assert.equal(txResult.logs[0].args['_from'], accounts[0]);
-                    assert.equal(txResult.logs[0].args['_amount'], TicketCost * TicketQuota);
+                    assert.equal(txResult.logs[0].args['_amount'], TicketCost * TicketQuota * 5);
                 }
             ).then(() => {
-                return eventRegistration.buyTicket(Email, 1, { from: accounts[0], value: TicketCost}).then(txResult => {
+                return eventRegistration.buyTicket(Email, TicketQuota, { from: accounts[0], value: TicketCost * TicketQuota}).then(txResult => {
                     // should not reach here
                     assert.equal(true, false);
                 }).catch(e => ThrowHandler(e));
             });
         });
     });
+
 
 });
