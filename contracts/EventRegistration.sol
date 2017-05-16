@@ -63,9 +63,11 @@ contract EventRegistration {
         if (registrantsPaid[buyer].amount > 0) {
             if (this.balance >= registrantsPaid[buyer].amount) {
                 numTicketsSold = numTicketsSold - registrantsPaid[buyer].numTickets;
-                if (!buyer.send(registrantsPaid[buyer].amount)) throw;
-                Refund(buyer, registrantsPaid[buyer].amount);
+                // protect against re-entrancy hacks
+                uint refundAmount = registrantsPaid[buyer].amount;
                 registrantsPaid[buyer].amount = 0;
+                if (!buyer.send(refundAmount)) throw;
+                Refund(buyer, refundAmount);
             }
         }
     }

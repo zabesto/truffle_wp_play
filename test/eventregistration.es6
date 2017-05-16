@@ -77,7 +77,7 @@ contract('eventregistration', function(accounts) {
                     assert.equal(txResult.logs.length, 1); // make sure it fired
                     assert.equal(txResult.logs[0].event, "Refund");
                     assert.equal(txResult.logs[0].args['_to'], accounts[2]);
-                    assert.equal(txResult.logs[0].args['_amount'], Amount);
+                    assert.equal(txResult.logs[0].args['_amount'].toNumber(), Amount);
                 });
             });
         });
@@ -145,7 +145,7 @@ contract('eventregistration', function(accounts) {
             eventRegistration = instance;
             return eventRegistration.withdrawFunds({from: owner}).then(() => {
                 var newBalance = web3.fromWei(web3.eth.getBalance(owner), "ether");
-                assert.approximately(ExpectedReward, newBalance.toNumber() - origBalance.toNumber(), 0.0000001);
+                assert.approximately(ExpectedReward, newBalance.toNumber() - origBalance.toNumber(), 0.000001);
             });
         });
     });
