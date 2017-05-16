@@ -140,7 +140,7 @@ contract('eventregistration', function(accounts) {
         var eventRegistration;
         var owner = accounts[0];
         var origBalance = web3.fromWei(web3.eth.getBalance(owner), "ether");
-        const ExpectedReward = 99.9971451;
+        const ExpectedReward = 99.9971514;
         return EventRegistration.deployed().then(instance => {
             eventRegistration = instance;
             return eventRegistration.withdrawFunds({from: owner}).then(() => {

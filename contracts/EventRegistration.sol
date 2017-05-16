@@ -70,10 +70,8 @@ contract EventRegistration {
         }
     }
 
-    function withdrawFunds() onlyOwner returns (uint){
-        uint balance = this.balance;
-        if (!owner.send(balance)) throw;
-        return (balance);
+    function withdrawFunds() onlyOwner {
+        if (!owner.send(this.balance)) throw;
     }
 
     function getRegistrantAmountPaid(address buyer) returns (uint) {
