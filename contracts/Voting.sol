@@ -43,7 +43,7 @@ contract Voting {
         if (now > votingStart + votingTime) throw;
         Voter sender = voters[msg.sender];
 
-        if (sender.voted) throw;
+        if (sender.voted || !sender.rightToVote) throw;
 
         sender.voted = true;
         sender.vote = proposal;
@@ -51,7 +51,7 @@ contract Voting {
     }
 
     function winningProposal() constant returns(uint winningProposal, bytes32 proposalName) {
-        if (now < votingStart + votingTime) throw;
+//        if (now < votingStart + votingTime) throw;
 
         for (uint p=0; p < numProposals; p++) {
             if (proposals[p].voteCount > winningCount) {

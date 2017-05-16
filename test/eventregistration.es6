@@ -145,7 +145,7 @@ contract('eventregistration', function(accounts) {
             eventRegistration = instance;
             return eventRegistration.withdrawFunds({from: owner}).then(() => {
                 var newBalance = web3.fromWei(web3.eth.getBalance(owner), "ether");
-                assert.equal(newBalance.toNumber() - origBalance.toNumber(), ExpectedReward);
+                assert.approximately(ExpectedReward, newBalance.toNumber() - origBalance.toNumber(), 0.0000001);
             });
         });
     });
