@@ -62,17 +62,18 @@ contract EventRegistration {
     function refundTicket(address buyer) onlyOwner {
         if (registrantsPaid[buyer].amount > 0) {
             if (this.balance >= registrantsPaid[buyer].amount) {
-                registrantsPaid[buyer].amount = 0; // seems like a book bug
                 numTicketsSold = numTicketsSold - registrantsPaid[buyer].numTickets;
-
                 if (!buyer.send(registrantsPaid[buyer].amount)) throw;
                 Refund(buyer, registrantsPaid[buyer].amount);
+                registrantsPaid[buyer].amount = 0;
             }
         }
     }
 
-    function withdrawFunds() onlyOwner {
-        if (!owner.send(this.balance)) throw;
+    function withdrawFunds() onlyOwner returns (uint){
+        uint balance = this.balance;
+        if (!owner.send(balance)) throw;
+        return (balance);
     }
 
     function getRegistrantAmountPaid(address buyer) returns (uint) {
